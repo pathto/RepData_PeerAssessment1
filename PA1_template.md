@@ -1,4 +1,9 @@
-# Reproducible Research: Peer Assessment 1
+---
+title: "Reproducible Research: Peer Assessment 1"
+output: 
+  html_document:
+    keep_md: true
+---
 
 
 ## Loading and preprocessing the data
@@ -19,7 +24,7 @@ steps_perday <- sapply(split(d,d$date), function(x) sum(x$steps))
 hist(steps_perday)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png) 
 
 
 ```r
@@ -47,7 +52,7 @@ steps <- sapply(split(d, d$interval), function(x) mean(x$step))
 plot(strptime(names(steps), format='%H:%M'), steps, type='l', xlab='time')
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png) 
 
 Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
@@ -84,7 +89,7 @@ steps_perday_new <- sapply(split(data_new,data_new$date), function(x) sum(x$step
 hist(steps_perday_new)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-8-1.png) 
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png) 
 
 ```r
 mean(steps_perday_new)
