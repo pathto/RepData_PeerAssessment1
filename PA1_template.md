@@ -5,6 +5,14 @@
 
 
 ```r
+library(ggplot2)
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 3.1.3
+```
+
+```r
 data <- read.csv('activity.csv')
 data$interval <- sprintf('%02d:%02d',data$interval%/%100, data$interval%%100)
 data$time <- strptime(with(data, paste(date, interval)), '%Y-%m-%d %H:%M')
@@ -16,7 +24,8 @@ data$time <- strptime(with(data, paste(date, interval)), '%Y-%m-%d %H:%M')
 ```r
 d <- data[!is.na(data$steps), ]
 steps_perday <- sapply(split(d,d$date), function(x) sum(x$steps))
-hist(steps_perday)
+#hist(steps_perday)
+qplot(steps_perday, binwidth = 2500)
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
@@ -44,10 +53,15 @@ median(steps_perday)
 
 ```r
 steps <- sapply(split(d, d$interval), function(x) mean(x$step))
-plot(strptime(names(steps), format='%H:%M'), steps, type='l', xlab='time')
+df <- data.frame(steps = steps, time = names(steps))
+plot(strptime(df$time, format = '%H:%M'), df$steps, type = 'l', xlab = 'time', ylab = 'steps')
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+
+```r
+#plot(strptime(names(steps), format='%H:%M'), steps, type='l', xlab='time')
+```
 
 Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
@@ -57,6 +71,15 @@ names(which.max(steps))
 
 ```
 ## [1] "08:35"
+```
+
+```r
+df$time[which.max(df$steps)]
+```
+
+```
+## [1] 08:35
+## 288 Levels: 00:00 00:05 00:10 00:15 00:20 00:25 00:30 00:35 00:40 ... 23:55
 ```
 
 ## Imputing missing values
@@ -110,27 +133,14 @@ data_new$weekday <- weekdays(data_new$time) == 'Sunday' | weekdays(data_new$time
 data_new$weekday <- factor(data_new$weekday, label=c('Weekday', 'Weekend'))
 d_weekend <- data_new[data_new$weekday=='Weekend',]
 d_weekday<- data_new[data_new$weekday=='Weekday',]
-head(d_weekday)
-```
-
-```
-##       steps       date interval                time weekday
-## 1 1.7169811 2012-10-01    00:00 2012-10-01 00:00:00 Weekday
-## 2 0.3396226 2012-10-01    00:05 2012-10-01 00:05:00 Weekday
-## 3 0.1320755 2012-10-01    00:10 2012-10-01 00:10:00 Weekday
-## 4 0.1509434 2012-10-01    00:15 2012-10-01 00:15:00 Weekday
-## 5 0.0754717 2012-10-01    00:20 2012-10-01 00:20:00 Weekday
-## 6 2.0943396 2012-10-01    00:25 2012-10-01 00:25:00 Weekday
-```
-
-```r
 steps_weekend <- sapply(split(d_weekend, d_weekend$interval), function(x) mean(x$step))
+df_weekend <- data.frame(steps = steps_weekend, time = names(steps_weekend), Weekday = 0)
 steps_weekday <- sapply(split(d_weekday, d_weekday$interval), function(x) mean(x$step))
+df_weekday <- data.frame(steps = steps_weekday, time = names(steps_weekday), Weekday = 1)
 
-par(mfrow = c(2,1), mar = c(3,3,1,1))
-plot(strptime(names(steps_weekday), format='%H:%M'), steps_weekday, type='l')
-plot(strptime(names(steps_weekend), format='%H:%M'), steps_weekend, type='l')
-title(sub=c('weekday','weekend'))
+df_new <- rbind(df_weekday, df_weekend)
+df_new$Weekday <- factor(df_new$Weekday, labels = c('weekend', 'weekday'))
+qplot(strptime(time, format = '%H:%M'), steps, data = df_new, facets = Weekday ~ ., geom = 'line', xlab = 'time')
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-9-1.png) 
